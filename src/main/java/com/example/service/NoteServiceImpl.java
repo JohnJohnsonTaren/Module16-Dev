@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
 public class NoteServiceImpl implements NoteService {
     private final NoteRepository noteRepository;
 
@@ -25,11 +24,13 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    @Transactional
     public Note add(Note note) {
         return noteRepository.save(note);
     }
 
     @Override
+    @Transactional
     public void deleteById(long id) {
         if (!noteRepository.existsById(id)) {
             throw new NoteNotFoundException(id);
@@ -38,10 +39,10 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    @Transactional
     public void update(Note note) {
         Long id = note.getId();
-        Note existingNote = noteRepository.findById(id)
-                .orElseThrow(() -> new NoteNotFoundException(id));
+        Note existingNote = getById(id);
 
         existingNote.setTitle(note.getTitle());
         existingNote.setContent(note.getContent());
