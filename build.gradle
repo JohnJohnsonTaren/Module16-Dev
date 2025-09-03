@@ -2,6 +2,34 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.5'
 	id 'io.spring.dependency-management' version '1.1.7'
+    id 'checkstyle'
+}
+
+checkstyle {
+    toolVersion = '10.12.1'  // Більш стабільна версія
+    configFile = file('config/checkstyle/checkstyle.xml')
+    configDirectory = file('config/checkstyle')
+    maxErrors = 0      // Встановлює максимальну кількість помилок
+    maxWarnings = 100  // Встановлює максимальну кількість попереджень
+    // Виправлена проблема з configProperties - використовуємо абсолютні шляхи
+    configProperties = [
+        'org.checkstyle.google.suppressionfilter.config': file('config/checkstyle/checkstyle-suppressions.xml').absolutePath,
+        'org.checkstyle.google.suppressionxpathfilter.config': file('config/checkstyle/checkstyle-xpath-suppressions.xml').absolutePath
+    ]
+    ignoreFailures = false  // Збій завдання, якщо є помилки
+    showViolations = true   // Показувати порушення в звіті
+}
+
+// Замість jvmArgs використовуємо системні властивості
+// Це дозволить включити завантаження DTD
+System.setProperty("checkstyle.enableExternalDtdLoad", "true")
+
+// Додамо необхідні файли для звітів Checkstyle
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }
 
 group = 'com.example'
@@ -38,11 +66,11 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    // https://mvnrepository.com/artifact/com.puppycrawl.tools/checkstyle
-    implementation 'com.puppycrawl.tools:checkstyle:11.0.0'
+    
+    // Додаємо залежність на Checkstyle для тестів
+    testImplementation "com.puppycrawl.tools:checkstyle:${checkstyle.toolVersion}"
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

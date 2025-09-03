@@ -24,7 +24,6 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    @Transactional
     public Note add(Note note) {
         return noteRepository.save(note);
     }
